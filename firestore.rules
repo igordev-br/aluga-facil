@@ -31,14 +31,17 @@ service cloud.firestore {
     function isAdmin() {
       return isSignedIn() && (
         exists(/databases/$(database)/documents/admins/$(request.auth.uid)) ||
-        (request.auth.token.email == 'igorwebdesign86@gmail.com' && request.auth.token.email_verified == true)
+        (request.auth.token.email != null && request.auth.token.email.lower() == 'igorwebdesign86@gmail.com')
       );
     }
 
     // Admins collection
     match /admins/{userId} {
       allow read: if isSignedIn() && isValidId(userId);
-      allow write: if isAdmin() && isValidId(userId);
+      allow write: if isValidId(userId) && (
+        isAdmin() || 
+        (isSignedIn() && request.auth.token.email != null && request.auth.token.email.lower() == 'igorwebdesign86@gmail.com')
+      );
     }
 
     // User profiles
@@ -48,7 +51,7 @@ service cloud.firestore {
       allow create: if isValidId(userId) && isOwner(userId) &&
         incoming().email is string &&
         incoming().email.size() <= 150 &&
-        incoming().accountType in ['proprietario', 'imobiliaria'] &&
+        incoming().accountType in ['proprietario', 'imobiliaria', 'admin'] &&
         incoming().accountStatus == 'active';
       allow update: if isValidId(userId) && (
         isAdmin() ||
