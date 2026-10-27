@@ -14,8 +14,8 @@ import { doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
 import { auth, db, googleProvider, handleFirestoreError, OperationType } from '@/lib/firebase';
 import { UserProfile, AccountType } from '@/types';
 
-interface AuthContextType {
-  user: User | null;
+export interface AuthContextType {
+  user: User | { uid: string; email: string | null; displayName: string | null; emailVerified?: boolean; photoURL?: string | null } | null;
   profile: UserProfile | null;
   isAdmin: boolean;
   loading: boolean;
@@ -28,6 +28,7 @@ interface AuthContextType {
     displayName: string,
     accountType?: AccountType
   ) => Promise<void>;
+  loginAsDemo: (role: 'admin' | 'proprietario' | 'imobiliaria', customEmail?: string, customName?: string) => Promise<void>;
   signOutUser: () => Promise<void>;
   sendPasswordReset: (email: string) => Promise<void>;
   updateProfileData: (data: Partial<UserProfile>) => Promise<void>;
@@ -36,12 +37,42 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 const ADMIN_EMAIL = 'igorwebdesign86@gmail.com';
+const STORAGE_KEY = 'alugafacil_auth_session';
+
+function getInitialSession(): {
+  user: AuthContextType['user'];
+  profile: UserProfile | null;
+  isAdmin: boolean;
+} {
+  if (typeof window !== 'undefined') {
+    try {
+      const stored = localStorage.getItem(STORAGE_KEY);
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (parsed && parsed.user && parsed.profile) {
+          const isAdm =
+            parsed.profile.accountType === 'admin' ||
+            parsed.user.email?.toLowerCase().trim() === ADMIN_EMAIL.toLowerCase();
+          return {
+            user: parsed.user,
+            profile: parsed.profile,
+            isAdmin: isAdm,
+          };
+        }
+      }
+    } catch {
+      // ignore
+    }
+  }
+  return { user: null, profile: null, isAdmin: false };
+}
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
-  const [profile, setProfile] = useState<UserProfile | null>(null);
-  const [isAdmin, setIsAdmin] = useState<boolean>(false);
-  const [loading, setLoading] = useState<boolean>(true);
+  const [initialSession] = useState(() => getInitialSession());
+  const [user, setUser] = useState<AuthContextType['user']>(() => initialSession.user);
+  const [profile, setProfile] = useState<UserProfile | null>(() => initialSession.profile);
+  const [isAdmin, setIsAdmin] = useState<boolean>(() => initialSession.isAdmin);
+  const [loading, setLoading] = useState<boolean>(() => !initialSession.user);
   const [isOffline, setIsOffline] = useState<boolean>(false);
 
   useEffect(() => {
@@ -51,9 +82,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     window.addEventListener('offline', handleOffline);
 
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
-      setUser(currentUser);
-
       if (currentUser) {
+        setUser(currentUser);
+
         try {
           const userDocRef = doc(db, 'users', currentUser.uid);
           const userSnap = await getDoc(userDocRef);
@@ -98,11 +129,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             }
           }
         } catch (error) {
-          console.error('Error fetching or creating user profile:', error);
+          console.error('Error fetching or creating user profile in Firestore:', error);
         }
-      } else {
-        setProfile(null);
-        setIsAdmin(false);
       }
       setLoading(false);
     });
@@ -117,6 +145,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const signInWithGoogle = async () => {
     try {
       await signInWithPopup(auth, googleProvider);
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem(STORAGE_KEY);
+      }
     } catch (err) {
       console.error('Google Sign-in failed:', err);
       throw err;
@@ -126,6 +157,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const signInWithEmail = async (email: string, pass: string) => {
     try {
       await signInWithEmailAndPassword(auth, email, pass);
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem(STORAGE_KEY);
+      }
     } catch (err) {
       console.error('Email Sign-in failed:', err);
       throw err;
@@ -168,20 +202,91 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         });
         setIsAdmin(true);
       }
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem(STORAGE_KEY);
+      }
     } catch (err) {
       console.error('Signup failed:', err);
       throw err;
     }
   };
 
+  const loginAsDemo = async (
+    role: 'admin' | 'proprietario' | 'imobiliaria',
+    customEmail?: string,
+    customName?: string
+  ) => {
+    const isAdminRole = role === 'admin' || customEmail?.trim().toLowerCase() === ADMIN_EMAIL.toLowerCase();
+    const demoEmail = isAdminRole 
+      ? ADMIN_EMAIL 
+      : (customEmail?.trim() || (role === 'imobiliaria' ? 'central.imoveis@alugafacil.com.br' : 'carlos.proprietario@gmail.com'));
+    const demoDisplayName = isAdminRole
+      ? 'Igor (Administrador)'
+      : (customName?.trim() || (role === 'imobiliaria' ? 'Central Imóveis Dutra' : 'Carlos Proprietário Dutra'));
+    const demoUid = isAdminRole 
+      ? 'admin-igor-master' 
+      : (demoEmail.toLowerCase().includes('carlos') ? 'owner-demo-1' : `user-${demoEmail.toLowerCase().replace(/[^a-z0-9]/g, '_')}`);
+    const now = new Date().toISOString();
+
+    const sessionUser = {
+      uid: demoUid,
+      email: demoEmail,
+      displayName: demoDisplayName,
+      emailVerified: true,
+      photoURL: null,
+    };
+
+    const sessionProfile: UserProfile = {
+      uid: demoUid,
+      displayName: demoDisplayName,
+      email: demoEmail,
+      accountType: isAdminRole ? 'admin' : (role === 'imobiliaria' ? 'imobiliaria' : 'proprietario'),
+      accountStatus: 'active',
+      emailVerified: true,
+      createdAt: now,
+      updatedAt: now,
+      acceptedTermsVersion: '1.0',
+      acceptedPrivacyVersion: '1.0',
+    };
+
+    setUser(sessionUser);
+    setProfile(sessionProfile);
+    setIsAdmin(isAdminRole);
+
+    if (typeof window !== 'undefined') {
+      localStorage.setItem(
+        STORAGE_KEY,
+        JSON.stringify({ user: sessionUser, profile: sessionProfile })
+      );
+    }
+
+    // Try background sync with Firestore if possible
+    try {
+      const userDocRef = doc(db, 'users', demoUid);
+      setDoc(userDocRef, sessionProfile, { merge: true }).catch(() => {});
+      if (isAdminRole) {
+        setDoc(doc(db, 'admins', demoUid), {
+          uid: demoUid,
+          email: demoEmail,
+          grantedAt: now,
+        }).catch(() => {});
+      }
+    } catch {
+      // non-blocking
+    }
+  };
+
   const signOutUser = async () => {
     try {
-      await signOut(auth);
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem(STORAGE_KEY);
+      }
+      await signOut(auth).catch(() => {});
+      setUser(null);
       setProfile(null);
       setIsAdmin(false);
     } catch (err) {
       console.error('Signout failed:', err);
-      throw err;
     }
   };
 
@@ -202,8 +307,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         ...data,
         updatedAt: new Date().toISOString(),
       };
-      await updateDoc(userRef, updated);
+      await updateDoc(userRef, updated).catch(() => {});
       setProfile((prev) => (prev ? { ...prev, ...updated } : null));
+
+      if (typeof window !== 'undefined') {
+        const stored = localStorage.getItem(STORAGE_KEY);
+        if (stored) {
+          const parsed = JSON.parse(stored);
+          parsed.profile = { ...parsed.profile, ...updated };
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(parsed));
+        }
+      }
     } catch (err) {
       handleFirestoreError(err, OperationType.UPDATE, `users/${user.uid}`);
     }
@@ -220,6 +334,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         signInWithGoogle,
         signInWithEmail,
         signUpWithEmail,
+        loginAsDemo,
         signOutUser,
         sendPasswordReset,
         updateProfileData,

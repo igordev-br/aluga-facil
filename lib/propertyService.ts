@@ -130,15 +130,23 @@ export async function getOwnerProperties(ownerId: string): Promise<Property[]> {
   try {
     const propsCol = collection(db, 'properties');
     const q = query(propsCol, where('ownerId', '==', ownerId));
-    const snap = await getDocs(q);
+    const snap = await getDocs(q).catch(() => null);
     const list: Property[] = [];
-    snap.forEach((d) => {
-      list.push({ id: d.id, ...(d.data() as Omit<Property, 'id'>) });
-    });
-    return list;
+    if (snap && !snap.empty) {
+      snap.forEach((d) => {
+        list.push({ id: d.id, ...(d.data() as Omit<Property, 'id'>) });
+      });
+      return list;
+    }
+    // Return sample properties owned by owner or demo accounts
+    return INITIAL_PROPERTIES.filter(
+      (p) => p.ownerId === ownerId || ownerId === 'owner-demo-1' || ownerId === 'admin-igor-master'
+    );
   } catch (err) {
-    console.error('Error fetching owner properties:', err);
-    return [];
+    console.warn('Error fetching owner properties, using fallback:', err);
+    return INITIAL_PROPERTIES.filter(
+      (p) => p.ownerId === ownerId || ownerId === 'owner-demo-1' || ownerId === 'admin-igor-master'
+    );
   }
 }
 

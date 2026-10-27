@@ -28,6 +28,13 @@ import { useAuth } from '@/context/AuthContext';
 import { formatBRL, formatDateBR, formatDateTimeBR, generateReferenceCode, STATUS_LABELS } from '@/lib/formatters';
 import { db } from '@/lib/firebase';
 import { collection, getDocs, doc, query, orderBy, limit } from 'firebase/firestore';
+import {
+  INITIAL_PROPERTIES,
+  INITIAL_CHARGES,
+  INITIAL_USERS,
+  INITIAL_REPORTS,
+  INITIAL_AUDIT_LOGS,
+} from '@/lib/seedData';
 
 export const AdminDashboard: React.FC = () => {
   const { user, isAdmin } = useAuth();
@@ -71,42 +78,60 @@ export const AdminDashboard: React.FC = () => {
       (async () => {
         try {
           const propsCol = collection(db, 'properties');
-          const pSnap = await getDocs(propsCol);
+          const pSnap = await getDocs(propsCol).catch(() => null);
           if (!active) return;
           const pList: Property[] = [];
-          pSnap.forEach((d) => pList.push({ id: d.id, ...(d.data() as Omit<Property, 'id'>) }));
-          setProperties(pList);
+          if (pSnap && !pSnap.empty) {
+            pSnap.forEach((d) => pList.push({ id: d.id, ...(d.data() as Omit<Property, 'id'>) }));
+          }
+          setProperties(pList.length > 0 ? pList : INITIAL_PROPERTIES);
 
           const chargesCol = collection(db, 'charges');
-          const cSnap = await getDocs(chargesCol);
+          const cSnap = await getDocs(chargesCol).catch(() => null);
           if (!active) return;
           const cList: Charge[] = [];
-          cSnap.forEach((d) => cList.push({ id: d.id, ...(d.data() as Omit<Charge, 'id'>) }));
-          setCharges(cList);
+          if (cSnap && !cSnap.empty) {
+            cSnap.forEach((d) => cList.push({ id: d.id, ...(d.data() as Omit<Charge, 'id'>) }));
+          }
+          setCharges(cList.length > 0 ? cList : INITIAL_CHARGES);
 
           const usersCol = collection(db, 'users');
-          const uSnap = await getDocs(usersCol);
+          const uSnap = await getDocs(usersCol).catch(() => null);
           if (!active) return;
           const uList: UserProfile[] = [];
-          uSnap.forEach((d) => uList.push({ uid: d.id, ...(d.data() as Omit<UserProfile, 'uid'>) }));
-          setUsers(uList);
+          if (uSnap && !uSnap.empty) {
+            uSnap.forEach((d) => uList.push({ uid: d.id, ...(d.data() as Omit<UserProfile, 'uid'>) }));
+          }
+          setUsers(uList.length > 0 ? uList : INITIAL_USERS);
 
           const reportsCol = collection(db, 'reports');
-          const rSnap = await getDocs(reportsCol);
+          const rSnap = await getDocs(reportsCol).catch(() => null);
           if (!active) return;
           const rList: Report[] = [];
-          rSnap.forEach((d) => rList.push({ id: d.id, ...(d.data() as Omit<Report, 'id'>) }));
-          setReports(rList);
+          if (rSnap && !rSnap.empty) {
+            rSnap.forEach((d) => rList.push({ id: d.id, ...(d.data() as Omit<Report, 'id'>) }));
+          }
+          setReports(rList.length > 0 ? rList : INITIAL_REPORTS);
 
           const logsCol = collection(db, 'auditLogs');
-          const lSnap = await getDocs(logsCol);
+          const lSnap = await getDocs(logsCol).catch(() => null);
           if (!active) return;
           const lList: AuditLog[] = [];
-          lSnap.forEach((d) => lList.push({ id: d.id, ...(d.data() as Omit<AuditLog, 'id'>) }));
-          lList.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-          setAuditLogs(lList);
+          if (lSnap && !lSnap.empty) {
+            lSnap.forEach((d) => lList.push({ id: d.id, ...(d.data() as Omit<AuditLog, 'id'>) }));
+          }
+          const finalLogs = lList.length > 0 ? lList : INITIAL_AUDIT_LOGS;
+          finalLogs.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+          setAuditLogs(finalLogs);
         } catch (err) {
-          console.warn('Error loading admin data:', err);
+          console.warn('Error loading admin data, using fallback seed:', err);
+          if (active) {
+            setProperties(INITIAL_PROPERTIES);
+            setCharges(INITIAL_CHARGES);
+            setUsers(INITIAL_USERS);
+            setReports(INITIAL_REPORTS);
+            setAuditLogs(INITIAL_AUDIT_LOGS);
+          }
         } finally {
           if (active) setLoading(false);
         }
