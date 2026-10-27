@@ -1,0 +1,247 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "User profile with role and contact preferences",
+      "type": "object",
+      "properties": {
+        "displayName": { "type": "string", "maxLength": 100 },
+        "email": { "type": "string", "maxLength": 150 },
+        "phonePrivate": { "type": "string", "maxLength": 30 },
+        "publicPhone": { "type": "string", "maxLength": 30 },
+        "accountType": { "type": "string", "enum": ["proprietario", "imobiliaria", "admin"] },
+        "accountStatus": { "type": "string", "enum": ["active", "suspended"] },
+        "suspensionReason": { "type": "string", "maxLength": 500 },
+        "emailVerified": { "type": "boolean" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" },
+        "acceptedTermsVersion": { "type": "string", "maxLength": 20 },
+        "acceptedPrivacyVersion": { "type": "string", "maxLength": 20 }
+      },
+      "required": ["email", "accountType", "accountStatus", "createdAt", "updatedAt"]
+    },
+    "Property": {
+      "title": "Property",
+      "description": "Real estate rental property listing",
+      "type": "object",
+      "properties": {
+        "ownerId": { "type": "string", "maxLength": 128 },
+        "title": { "type": "string", "maxLength": 150, "minLength": 5 },
+        "slug": { "type": "string", "maxLength": 200 },
+        "propertyType": { "type": "string", "enum": ["casa", "apartamento", "kitnet", "comercial", "sala", "galpao", "terreno", "chacara"] },
+        "purpose": { "type": "string", "enum": ["residencial", "comercial"] },
+        "description": { "type": "string", "maxLength": 4000 },
+        "city": { "type": "string", "maxLength": 80 },
+        "state": { "type": "string", "maxLength": 2 },
+        "neighborhood": { "type": "string", "maxLength": 100 },
+        "publicAddress": { "type": "string", "maxLength": 255 },
+        "privateAddress": { "type": "string", "maxLength": 255 },
+        "areaM2": { "type": "number" },
+        "bedrooms": { "type": "number" },
+        "suites": { "type": "number" },
+        "bathrooms": { "type": "number" },
+        "parkingSpaces": { "type": "number" },
+        "furnished": { "type": "boolean" },
+        "amenities": { "type": "array" },
+        "rentAmountCents": { "type": "number" },
+        "condominiumAmountCents": { "type": "number" },
+        "iptuAmountCents": { "type": "number" },
+        "additionalFees": { "type": "string", "maxLength": 500 },
+        "photoPaths": { "type": "array" },
+        "coverPhotoPath": { "type": "string", "maxLength": 1000 },
+        "publicContactName": { "type": "string", "maxLength": 100 },
+        "publicContactPhone": { "type": "string", "maxLength": 30 },
+        "whatsappConsent": { "type": "boolean" },
+        "status": { "type": "string", "enum": ["draft", "pending", "published", "rented", "unavailable", "archived"] },
+        "moderationStatus": { "type": "string", "enum": ["pending", "approved", "rejected", "correction_requested"] },
+        "moderationReason": { "type": "string", "maxLength": 1000 },
+        "moderatedBy": { "type": "string", "maxLength": 128 },
+        "moderatedAt": { "type": "string", "format": "date-time" },
+        "featuredUntil": { "type": "string", "format": "date-time" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" },
+        "publishedAt": { "type": "string", "format": "date-time" },
+        "availabilityUpdatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["ownerId", "title", "propertyType", "city", "state", "rentAmountCents", "status", "moderationStatus", "createdAt", "updatedAt"]
+    },
+    "Plan": {
+      "title": "Plan",
+      "description": "Subscription pricing plan for owners and realtors",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string", "maxLength": 80 },
+        "description": { "type": "string", "maxLength": 500 },
+        "priceCents": { "type": "number" },
+        "billingPeriod": { "type": "string", "enum": ["mensal", "trimestral", "anual"] },
+        "maxActiveProperties": { "type": "number" },
+        "enabledFeatures": { "type": "array" },
+        "isActive": { "type": "boolean" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["name", "priceCents", "billingPeriod", "maxActiveProperties", "isActive"]
+    },
+    "Subscription": {
+      "title": "Subscription",
+      "description": "Owner active subscription",
+      "type": "object",
+      "properties": {
+        "ownerId": { "type": "string", "maxLength": 128 },
+        "planId": { "type": "string", "maxLength": 128 },
+        "planNameSnapshot": { "type": "string", "maxLength": 100 },
+        "priceCentsSnapshot": { "type": "number" },
+        "maxPropertiesSnapshot": { "type": "number" },
+        "status": { "type": "string", "enum": ["active", "expired", "suspended", "canceled"] },
+        "startedAt": { "type": "string", "format": "date-time" },
+        "expiresAt": { "type": "string", "format": "date-time" },
+        "renewalMode": { "type": "string", "enum": ["manual"] },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" },
+        "canceledAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["ownerId", "planId", "status", "startedAt", "expiresAt"]
+    },
+    "Charge": {
+      "title": "Charge",
+      "description": "Manual financial billing charge (PIX, transfer, cash)",
+      "type": "object",
+      "properties": {
+        "ownerId": { "type": "string", "maxLength": 128 },
+        "subscriptionId": { "type": "string", "maxLength": 128 },
+        "featuredRequestId": { "type": "string", "maxLength": 128 },
+        "type": { "type": "string", "enum": ["subscription", "featured"] },
+        "amountCents": { "type": "number" },
+        "currency": { "type": "string", "maxLength": 5 },
+        "paymentMethod": { "type": "string", "enum": ["pix", "ted", "dinheiro", "outro"] },
+        "status": { "type": "string", "enum": ["pending", "confirmed", "rejected", "canceled", "refunded"] },
+        "dueAt": { "type": "string", "format": "date-time" },
+        "confirmedAt": { "type": "string", "format": "date-time" },
+        "confirmedBy": { "type": "string", "maxLength": 128 },
+        "externalReference": { "type": "string", "maxLength": 200 },
+        "notes": { "type": "string", "maxLength": 1000 },
+        "receiptUrl": { "type": "string", "maxLength": 1000 },
+        "idempotencyKey": { "type": "string", "maxLength": 128 },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["ownerId", "type", "amountCents", "currency", "paymentMethod", "status", "createdAt"]
+    },
+    "FeaturedRequest": {
+      "title": "FeaturedRequest",
+      "description": "Request to boost a property listing",
+      "type": "object",
+      "properties": {
+        "ownerId": { "type": "string", "maxLength": 128 },
+        "propertyId": { "type": "string", "maxLength": 128 },
+        "durationDays": { "type": "number" },
+        "priceCentsSnapshot": { "type": "number" },
+        "status": { "type": "string", "enum": ["pending_payment", "active", "expired", "canceled"] },
+        "paymentChargeId": { "type": "string", "maxLength": 128 },
+        "startsAt": { "type": "string", "format": "date-time" },
+        "expiresAt": { "type": "string", "format": "date-time" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["ownerId", "propertyId", "durationDays", "priceCentsSnapshot", "status", "createdAt"]
+    },
+    "PropertyEvent": {
+      "title": "PropertyEvent",
+      "description": "Analytics events like views, whatsapp clicks, shares",
+      "type": "object",
+      "properties": {
+        "propertyId": { "type": "string", "maxLength": 128 },
+        "ownerId": { "type": "string", "maxLength": 128 },
+        "eventType": { "type": "string", "enum": ["view", "whatsapp_click", "share", "report"] },
+        "sessionHash": { "type": "string", "maxLength": 128 },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["propertyId", "eventType", "createdAt"]
+    },
+    "Report": {
+      "title": "Report",
+      "description": "Property listing moderation report",
+      "type": "object",
+      "properties": {
+        "propertyId": { "type": "string", "maxLength": 128 },
+        "reporterId": { "type": "string", "maxLength": 128 },
+        "reporterContact": { "type": "string", "maxLength": 100 },
+        "category": { "type": "string", "enum": ["fake", "already_rented", "wrong_price", "inappropriate", "offensive", "other"] },
+        "description": { "type": "string", "maxLength": 2000 },
+        "status": { "type": "string", "enum": ["pending", "investigating", "resolved", "dismissed"] },
+        "resolution": { "type": "string", "maxLength": 1000 },
+        "reviewedAt": { "type": "string", "format": "date-time" },
+        "reviewedBy": { "type": "string", "maxLength": 128 },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["propertyId", "category", "description", "status", "createdAt"]
+    },
+    "Notification": {
+      "title": "Notification",
+      "description": "User in-app notifications",
+      "type": "object",
+      "properties": {
+        "recipientId": { "type": "string", "maxLength": 128 },
+        "type": { "type": "string", "enum": ["property_approved", "property_rejected", "payment_confirmed", "payment_rejected", "highlight_active", "subscription_expiring", "system_alert"] },
+        "title": { "type": "string", "maxLength": 150 },
+        "message": { "type": "string", "maxLength": 1000 },
+        "read": { "type": "boolean" },
+        "readAt": { "type": "string", "format": "date-time" },
+        "relatedEntityId": { "type": "string", "maxLength": 128 },
+        "relatedEntityType": { "type": "string", "maxLength": 50 },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["recipientId", "type", "title", "message", "read", "createdAt"]
+    },
+    "AuditLog": {
+      "title": "AuditLog",
+      "description": "Security and administrative audit history",
+      "type": "object",
+      "properties": {
+        "actorUid": { "type": "string", "maxLength": 128 },
+        "actorEmail": { "type": "string", "maxLength": 150 },
+        "action": { "type": "string", "maxLength": 100 },
+        "entityType": { "type": "string", "maxLength": 50 },
+        "entityId": { "type": "string", "maxLength": 128 },
+        "metadata": { "type": "object" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["actorUid", "action", "entityType", "entityId", "createdAt"]
+    },
+    "PlatformSetting": {
+      "title": "PlatformSetting",
+      "description": "Global settings for cities, terms, categories, support contacts",
+      "type": "object",
+      "properties": {
+        "cities": { "type": "array" },
+        "categories": { "type": "array" },
+        "featuredPriceCents": { "type": "number" },
+        "featuredDurationDays": { "type": "number" },
+        "termsVersion": { "type": "string", "maxLength": 20 },
+        "privacyVersion": { "type": "string", "maxLength": 20 },
+        "supportPhone": { "type": "string", "maxLength": 30 },
+        "supportEmail": { "type": "string", "maxLength": 100 },
+        "pixKey": { "type": "string", "maxLength": 100 },
+        "pixKeyType": { "type": "string", "maxLength": 20 },
+        "bankInfo": { "type": "string", "maxLength": 300 },
+        "updatedAt": { "type": "string", "format": "date-time" },
+        "updatedBy": { "type": "string", "maxLength": 128 }
+      },
+      "required": ["cities", "featuredPriceCents", "featuredDurationDays"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": { "schema": "User", "description": "User profiles" },
+    "/admins/{userId}": { "schema": { "$ref": "#/entities/User" }, "description": "Admin authorization markers" },
+    "/properties/{propertyId}": { "schema": "Property", "description": "Property rental ads" },
+    "/plans/{planId}": { "schema": "Plan", "description": "Commercial pricing plans" },
+    "/subscriptions/{subscriptionId}": { "schema": "Subscription", "description": "Owner active subscriptions" },
+    "/charges/{chargeId}": { "schema": "Charge", "description": "Financial billing entries" },
+    "/featuredRequests/{requestId}": { "schema": "FeaturedRequest", "description": "Highlight booster requests" },
+    "/propertyEvents/{eventId}": { "schema": "PropertyEvent", "description": "Views, clicks and share metrics" },
+    "/reports/{reportId}": { "schema": "Report", "description": "Listing reports" },
+    "/notifications/{notificationId}": { "schema": "Notification", "description": "In-app notifications" },
+    "/auditLogs/{logId}": { "schema": "AuditLog", "description": "Admin audit log records" },
+    "/platformSettings/{settingId}": { "schema": "PlatformSetting", "description": "Platform global configuration" }
+  }
+}

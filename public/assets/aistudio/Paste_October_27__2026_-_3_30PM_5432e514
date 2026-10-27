@@ -1,0 +1,1016 @@
+# ALUGAFÁCIL PRO — PROMPT MESTRE DE IMPLEMENTAÇÃO
+
+## 1. PAPEL E OBJETIVO
+
+Atue como uma equipe sênior de desenvolvimento de software composta por arquiteto de sistemas, desenvolvedor full-stack, especialista Firebase, designer UX/UI, especialista em segurança, QA e consultor de produto digital.
+
+Desenvolva um sistema web comercial completo chamado **AlugaFácil Pro**, um portal de anúncios de imóveis para aluguel, com vários proprietários, destinado inicialmente a Presidente Dutra e cidades próximas do Maranhão, Brasil.
+
+O produto deve estar preparado para expansão futura para todo o Maranhão e, posteriormente, outras regiões do Brasil.
+
+Não desenvolva somente um protótipo visual, landing page ou conjunto de telas estáticas. Implemente uma aplicação funcional, com persistência real de dados, autenticação, permissões, validação de informações, operações administrativas e testes.
+
+Não simule funcionalidades que dependem de serviços externos. Quando uma configuração externa for necessária, implemente a integração real quando viável e documente as etapas de configuração pendentes.
+
+## 2. MODELO DE NEGÓCIO
+
+A plataforma será um portal intermediador de anúncios imobiliários.
+
+Os proprietários poderão cadastrar e administrar seus próprios imóveis. Os visitantes poderão pesquisar imóveis gratuitamente e entrar em contato diretamente com os anunciantes pelo WhatsApp.
+
+A plataforma ganhará dinheiro por meio de:
+
+1. Assinaturas mensais dos proprietários.
+2. Anúncios destacados por período determinado.
+3. Planos comerciais para proprietários com vários imóveis.
+4. Futuramente, planos específicos para imobiliárias e corretores.
+
+A primeira versão não deverá intermediar contratos, receber caução, cobrar o aluguel do inquilino nem movimentar dinheiro entre proprietário e locatário.
+
+O sistema deverá permitir registrar pagamentos manualmente pelo administrador. Um pagamento registrado só poderá liberar os benefícios correspondentes depois de validado e confirmado por um usuário autorizado.
+
+## 3. TECNOLOGIAS OBRIGATÓRIAS
+
+### Frontend
+- React.
+- TypeScript em modo estrito.
+- Vite, caso compatível com a estrutura gerada.
+- React Router para navegação.
+- Biblioteca de componentes acessíveis e responsivos.
+- Formulários com validação de dados.
+- Gerenciamento de estado simples e consistente.
+- Firebase SDK para autenticação e acesso autorizado aos serviços.
+- PWA instalável em celulares e computadores.
+
+### Backend
+- Node.js com TypeScript.
+- Firebase Cloud Functions ou Cloud Run para operações privilegiadas.
+- API validada no servidor para operações administrativas e comerciais.
+- Validação de entrada com biblioteca como Zod.
+- Registro de erros e eventos importantes.
+- Processamento seguro de imagens e uploads, quando aplicável.
+
+Não mantenha duas implementações redundantes do backend. Escolha Cloud Functions ou Cloud Run conforme as necessidades do projeto e documente a decisão.
+
+### Firebase
+- Firebase Authentication para autenticação.
+- Cloud Firestore para banco de dados.
+- Cloud Storage para fotos dos imóveis.
+- Firebase App Check, quando compatível, para reduzir abuso dos serviços.
+- Firebase Hosting ou Firebase App Hosting, conforme compatibilidade com a arquitetura final.
+- Firebase Emulator Suite para testes locais de autenticação, banco e regras de segurança.
+
+Use variáveis de ambiente e arquivos de configuração apropriados. Não coloque credenciais administrativas, chaves privadas ou segredos no frontend.
+
+A configuração pública do Firebase Web SDK não deve ser tratada como um segredo capaz de proteger os dados. A proteção real deverá vir das regras de segurança e das validações no servidor.
+
+## 4. IDENTIDADE VISUAL E EXPERIÊNCIA
+
+Nome: AlugaFácil Pro.
+
+Idioma: português brasileiro.
+
+Moeda: real brasileiro (BRL).
+
+Formato de datas: DD/MM/AAAA.
+
+Fuso horário: America/Fortaleza.
+
+A interface deverá ser moderna, confiável, simples e profissional, com identidade visual imobiliária.
+
+Paleta sugerida:
+- Azul-marinho: #17324D.
+- Azul de destaque: #2563EB.
+- Branco: #FFFFFF.
+- Cinza claro: #F3F5F7.
+- Verde para estados positivos: #16803D.
+- Cinza-escuro para textos: #252B33.
+
+Utilize cartões de imóveis com fotografias de boa qualidade, cantos discretamente arredondados, tipografia legível, espaçamento consistente e ícones compreensíveis.
+
+A interface deverá funcionar em celulares Android, iPhones, tablets e computadores.
+
+Prioridades de UX:
+- Pesquisa rápida.
+- Poucos passos para publicar um imóvel.
+- Botões de contato visíveis.
+- Formulários fáceis de preencher.
+- Mensagens claras de erro e sucesso.
+- Estados de carregamento e listas vazias.
+- Confirmação antes de excluir ou executar ações irreversíveis.
+- Acessibilidade por teclado e leitores de tela.
+- Contraste adequado e áreas de toque apropriadas.
+
+Não utilize textos genéricos, dados fictícios como se fossem reais, links sem destino ou botões sem funcionalidade.
+
+## 5. TIPOS DE USUÁRIO E PERMISSÕES
+
+Implemente os seguintes papéis:
+
+### Visitante
+- Visualizar anúncios publicados.
+- Pesquisar e filtrar imóveis.
+- Visualizar detalhes e fotografias.
+- Compartilhar anúncios.
+- Abrir o WhatsApp do anunciante.
+- Consultar informações públicas do portal.
+
+Não poderá editar imóveis, visualizar dados privados nem acessar o painel administrativo.
+
+### Proprietário
+- Criar e editar seu perfil.
+- Cadastrar imóveis.
+- Editar somente os próprios imóveis.
+- Enviar fotos dos imóveis.
+- Salvar anúncios como rascunho.
+- Enviar anúncios para aprovação.
+- Consultar o status de cada anúncio.
+- Marcar imóveis como alugados ou indisponíveis.
+- Consultar visualizações e cliques de contato.
+- Consultar seu plano e a validade da assinatura.
+- Solicitar ou contratar destaques.
+- Consultar pagamentos e histórico financeiro próprios.
+- Consultar notificações e pendências.
+
+### Administrador
+- Acessar o painel administrativo.
+- Aprovar, rejeitar e moderar anúncios.
+- Gerenciar usuários e proprietários.
+- Suspender contas com justificativa.
+- Criar e editar planos comerciais.
+- Registrar e confirmar pagamentos manuais.
+- Ativar, renovar, suspender ou cancelar assinaturas.
+- Ativar e encerrar destaques.
+- Consultar denúncias e auditorias.
+- Consultar relatórios operacionais e comerciais.
+- Configurar cidades atendidas, categorias e regras do portal.
+
+### Segurança dos papéis
+
+O papel de administrador deverá ser atribuído somente por procedimento privilegiado e controlado no backend ou por configuração administrativa segura.
+
+Nunca permita que um usuário se torne administrador modificando seu próprio perfil, campos enviados pelo navegador ou documentos do Firestore.
+
+O frontend poderá ocultar funcionalidades sem permissão, mas isso não substitui a validação obrigatória no backend e nas regras do Firebase.
+
+## 6. PÁGINAS PÚBLICAS
+
+### 6.1 Página inicial
+
+Implementar:
+- Cabeçalho com logotipo.
+- Menu principal.
+- Campo de pesquisa de imóveis.
+- Seleção de cidade.
+- Filtro por tipo de imóvel.
+- Faixa de preço mínimo e máximo.
+- Número de quartos quando aplicável.
+- Seção de imóveis destacados.
+- Seção de imóveis adicionados recentemente.
+- Atalhos para categorias.
+- Chamada para proprietários anunciarem.
+- Seção explicando como funciona o portal.
+- Rodapé com contato, termos, privacidade e informações institucionais.
+
+Não apresente imóveis falsos como anúncios reais. Em ambiente de desenvolvimento, identifique claramente qualquer conteúdo de demonstração.
+
+### 6.2 Pesquisa de imóveis
+
+Permitir filtrar por:
+- Cidade.
+- Bairro.
+- Tipo de imóvel.
+- Preço mínimo.
+- Preço máximo.
+- Quantidade de quartos.
+- Quantidade de banheiros.
+- Vagas de garagem.
+- Área mínima e máxima.
+- Imóveis mobiliados.
+- Imóveis com destaque.
+
+Permitir ordenar por:
+- Mais recentes.
+- Menor preço.
+- Maior preço.
+- Maior relevância.
+
+Implementar paginação ou carregamento incremental.
+
+Os filtros deverão ser refletidos na URL quando apropriado, permitindo compartilhar uma pesquisa.
+
+Utilize consultas compatíveis com os índices do Firestore. Para buscas textuais mais avançadas, mantenha uma camada de busca substituível, sem prometer pesquisa textual completa usando somente consultas nativas do Firestore.
+
+### 6.3 Página de detalhes do imóvel
+
+Exibir:
+- Galeria de fotografias.
+- Título do anúncio.
+- Tipo de imóvel.
+- Valor mensal do aluguel.
+- Taxa de condomínio, quando informada.
+- IPTU, quando informado.
+- Cidade e bairro.
+- Endereço público aproximado ou endereço autorizado para divulgação.
+- Área em metros quadrados.
+- Quartos, banheiros e vagas.
+- Descrição completa.
+- Características e comodidades.
+- Data de publicação.
+- Identificação pública do anunciante.
+- Botão de WhatsApp.
+- Botão de compartilhamento.
+- Imóveis semelhantes.
+- Opção para denunciar anúncio.
+
+Não exponha telefone privado, documentos, endereço residencial do proprietário ou dados financeiros.
+
+Não apresente mapas, distâncias ou localização exata sem dados válidos e autorização apropriada.
+
+### 6.4 Página de cadastro e autenticação
+
+Implementar:
+- Cadastro por e-mail e senha.
+- Login.
+- Recuperação de senha.
+- Verificação de e-mail.
+- Encerramento de sessão.
+- Tratamento de erros.
+- Aceitação registrada dos termos e da política de privacidade.
+
+Utilizar Firebase Authentication. Não armazenar senhas em documentos do Firestore.
+
+Permitir que um usuário solicite a exclusão da própria conta, respeitando os procedimentos necessários para preservar registros legalmente obrigatórios e resolver anúncios ou assinaturas pendentes.
+
+## 7. ÁREA DO PROPRIETÁRIO
+
+### 7.1 Dashboard
+
+Exibir:
+- Total de imóveis cadastrados.
+- Imóveis publicados.
+- Imóveis aguardando aprovação.
+- Imóveis rejeitados.
+- Imóveis indisponíveis.
+- Visualizações dos anúncios.
+- Cliques no WhatsApp.
+- Plano atual.
+- Data de vencimento da assinatura.
+- Destaques ativos e respectivas datas de término.
+- Avisos sobre pendências.
+
+As métricas devem ser calculadas a partir de eventos válidos e dados persistidos, evitando números simulados.
+
+### 7.2 Cadastro de imóveis
+
+Criar formulário dividido em etapas.
+
+Etapa 1 — Identificação:
+- Título.
+- Tipo do imóvel.
+- Finalidade: aluguel residencial ou comercial.
+- Descrição.
+- Situação de ocupação.
+
+Etapa 2 — Localização:
+- Estado.
+- Cidade.
+- Bairro.
+- Endereço completo, armazenado como dado privado quando necessário.
+- Complemento opcional.
+- Indicação do que poderá ser exibido publicamente.
+
+Etapa 3 — Características:
+- Área total.
+- Quartos.
+- Suítes.
+- Banheiros.
+- Vagas de garagem.
+- Mobiliado ou não.
+- Características adicionais.
+
+Etapa 4 — Valores:
+- Aluguel mensal.
+- Condomínio, se houver.
+- IPTU, se houver.
+- Outras taxas claramente identificadas.
+- Informações sobre o que está incluído no preço.
+
+Etapa 5 — Fotos:
+- Envio de várias imagens.
+- Definição da foto principal.
+- Ordenação das imagens.
+- Remoção de imagens.
+- Pré-visualização.
+- Validação de tipo e tamanho.
+
+Etapa 6 — Contato:
+- Nome público do anunciante.
+- Telefone com DDD.
+- Confirmação de autorização para divulgação do número.
+- Preferências de mensagem do WhatsApp.
+
+Etapa 7 — Revisão:
+- Visualização do anúncio como ficará no portal.
+- Salvamento como rascunho.
+- Envio para aprovação.
+
+Validar os dados tanto no frontend quanto no backend.
+
+### 7.3 Gestão dos imóveis
+
+Permitir:
+- Editar rascunhos.
+- Corrigir anúncios rejeitados.
+- Reenviar para análise.
+- Consultar o motivo da rejeição.
+- Solicitar destaque.
+- Marcar imóvel como alugado.
+- Marcar como indisponível.
+- Arquivar anúncios antigos.
+
+Alterações relevantes em anúncios publicados deverão retornar à moderação quando necessário.
+
+## 8. PAINEL ADMINISTRATIVO
+
+Criar painel protegido, acessível exclusivamente a administradores autorizados.
+
+### 8.1 Visão geral
+- Total de usuários.
+- Total de proprietários ativos.
+- Total de anúncios publicados.
+- Anúncios aguardando aprovação.
+- Assinaturas ativas.
+- Assinaturas próximas do vencimento.
+- Pagamentos pendentes de conferência.
+- Receita registrada no período.
+- Quantidade de destaques ativos.
+- Evolução mensal de cadastros e anúncios.
+
+### 8.2 Moderação de anúncios
+- Fila de anúncios pendentes.
+- Visualização completa do anúncio.
+- Aprovação.
+- Rejeição com motivo obrigatório.
+- Solicitação de correção.
+- Suspensão de anúncio.
+- Registro de quem executou a ação e quando.
+
+### 8.3 Gestão de proprietários
+- Pesquisar usuários.
+- Visualizar anúncios relacionados.
+- Consultar situação da conta.
+- Suspender ou reativar acesso.
+- Consultar histórico de ações administrativas.
+- Consultar plano e pagamentos relacionados.
+
+Não permitir exclusão irrestrita de registros financeiros ou auditorias.
+
+### 8.4 Denúncias
+- Receber denúncias de anúncios.
+- Registrar categoria e descrição.
+- Permitir análise administrativa.
+- Registrar resolução e justificativa.
+- Suspender preventivamente um anúncio quando necessário.
+- Evitar que denúncias públicas revelem a identidade privada do denunciante.
+
+### 8.5 Configurações
+- Nome e identidade visual do portal.
+- Cidades atendidas.
+- Categorias de imóveis.
+- Limites de anúncios por plano.
+- Preços e períodos de assinatura.
+- Preços e períodos de destaque.
+- Regras de publicação.
+- Mensagens institucionais.
+- Dados de suporte.
+- Termos e política de privacidade.
+
+Alterações comerciais deverão registrar histórico de auditoria.
+
+## 9. MODELO DE PLANOS E MONETIZAÇÃO
+
+Criar um sistema de planos configurável pelo administrador.
+
+Sugestão inicial para validação comercial:
+
+### Plano Gratuito
+- Até 2 anúncios ativos.
+- Cadastro básico.
+- Contato pelo WhatsApp.
+- Estatísticas essenciais.
+
+### Plano Proprietário Pro
+- Preço inicial sugerido: R$ 29,90 por mês.
+- Até 10 anúncios ativos.
+- Estatísticas de visualização e contato.
+- Ferramentas ampliadas de gestão.
+
+### Plano Imobiliária
+- Preço inicial sugerido: R$ 99,90 por mês.
+- Limite ampliado de imóveis.
+- Gestão de equipe, se habilitada.
+- Relatórios e ferramentas adicionais.
+
+### Destaque de anúncio
+- Preço inicial sugerido: R$ 19,90 por anúncio, por 7 dias.
+- Maior exposição na seção de destaques.
+- Identificação visual de anúncio destacado.
+
+Os valores e limites devem ser configuráveis no painel. Não os codifique de forma fixa em várias partes do sistema.
+
+O sistema deverá armazenar uma cópia dos termos comerciais aplicáveis no momento de cada contratação, evitando que mudanças futuras alterem indevidamente cobranças históricas.
+
+Os destaques deverão ter data de início e término. Encerrado o período, o anúncio deverá perder automaticamente o destaque na consulta pública, mesmo que uma tarefa de limpeza ainda não tenha sido executada.
+
+## 10. PAGAMENTOS MANUAIS
+
+Nesta primeira versão, os pagamentos serão controlados manualmente.
+
+Implementar os seguintes meios de registro:
+- PIX.
+- Transferência bancária.
+- Dinheiro.
+- Outros meios configuráveis.
+
+Fluxo:
+1. O proprietário seleciona um plano ou solicita um destaque.
+2. O sistema registra a cobrança ou solicitação pendente.
+3. O administrador consulta os dados da cobrança.
+4. O pagamento é conferido externamente.
+5. O administrador autorizado confirma ou rejeita o pagamento.
+6. O sistema ativa os benefícios correspondentes após a confirmação.
+7. O sistema registra a operação na auditoria.
+8. O proprietário recebe uma notificação dentro do sistema.
+
+Guardar:
+- Identificador da cobrança.
+- Usuário responsável.
+- Plano ou destaque relacionado.
+- Valor em centavos.
+- Moeda.
+- Data de criação.
+- Data de vencimento.
+- Meio de pagamento.
+- Situação.
+- Data de confirmação.
+- Administrador responsável pela confirmação.
+- Referência ou observação.
+- Histórico de alterações.
+
+Status sugeridos:
+- Pendente.
+- Confirmado.
+- Rejeitado.
+- Cancelado.
+- Estornado.
+
+O estado Estornado não deverá ser usado como sinônimo de Cancelado. O estorno deverá ser registrado somente quando a devolução correspondente tiver ocorrido ou tiver sido devidamente comprovada.
+
+Não considerar um comprovante enviado pelo usuário como prova automática de recebimento.
+
+Não permitir que o proprietário confirme o próprio pagamento.
+
+Evitar ativações duplicadas em caso de repetição de solicitações ou chamadas. Utilizar operações idempotentes e transações do Firestore quando aplicáveis.
+
+Implementar cancelamento de renovação, histórico de pagamentos e tratamento de vencimentos.
+
+Nesta primeira versão, não implementar cobrança automática recorrente. O sistema deverá lembrar o vencimento e permitir a renovação manual.
+
+## 11. WHATSAPP
+
+Implementar botão de contato usando o endereço oficial de abertura de conversa do WhatsApp.
+
+Regras:
+- Normalizar o número para o formato internacional, com código do Brasil quando aplicável.
+- Validar a presença de DDD.
+- Gerar o link somente a partir do telefone público autorizado.
+- Utilizar mensagem inicial preenchida com título e referência do imóvel.
+- Codificar corretamente os parâmetros da URL.
+- Abrir o WhatsApp em nova aba ou aplicativo.
+- Registrar o evento de clique antes de redirecionar, quando tecnicamente viável.
+- Não considerar um clique como conversa iniciada ou aluguel concretizado.
+
+Exemplo de mensagem:
+
+"Olá! Vi o imóvel [TÍTULO DO IMÓVEL] no AlugaFácil Pro, referência [CÓDIGO]. Gostaria de mais informações sobre disponibilidade e condições de aluguel."
+
+Não enviar mensagens automáticas em nome do proprietário sem autorização. Não implementar disparos em massa.
+
+## 12. ESTRUTURA DO BANCO DE DADOS
+
+Utilize Cloud Firestore com coleções bem definidas.
+
+### users/{uid}
+Campos:
+- displayName
+- email
+- phonePrivate
+- publicPhone
+- accountType
+- accountStatus
+- emailVerified
+- createdAt
+- updatedAt
+- acceptedTermsVersion
+- acceptedPrivacyVersion
+
+Não permita que o usuário altere campos privilegiados diretamente.
+
+### properties/{propertyId}
+Campos:
+- ownerId
+- title
+- slug
+- propertyType
+- purpose
+- description
+- city
+- state
+- neighborhood
+- publicAddress
+- privateAddress
+- areaM2
+- bedrooms
+- suites
+- bathrooms
+- parkingSpaces
+- furnished
+- amenities
+- rentAmountCents
+- condominiumAmountCents
+- iptuAmountCents
+- additionalFees
+- photoPaths
+- coverPhotoPath
+- publicContactName
+- publicContactPhone
+- status
+- moderationStatus
+- moderationReason
+- featuredUntil
+- createdAt
+- updatedAt
+- publishedAt
+- availabilityUpdatedAt
+
+Os valores financeiros devem ser armazenados em centavos inteiros, com validação contra valores negativos e limites definidos.
+
+O endereço privado não deverá ser retornado em consultas públicas.
+
+### plans/{planId}
+Campos:
+- name
+- description
+- priceCents
+- billingPeriod
+- maxActiveProperties
+- enabledFeatures
+- isActive
+- createdAt
+- updatedAt
+
+### subscriptions/{subscriptionId}
+Campos:
+- ownerId
+- planId
+- planNameSnapshot
+- priceCentsSnapshot
+- status
+- startedAt
+- expiresAt
+- renewalMode
+- createdAt
+- updatedAt
+- canceledAt
+
+### charges/{chargeId}
+Campos:
+- ownerId
+- subscriptionId
+- featuredRequestId
+- amountCents
+- currency
+- paymentMethod
+- status
+- createdAt
+- dueAt
+- confirmedAt
+- confirmedBy
+- externalReference
+- notes
+- idempotencyKey
+
+### featuredRequests/{requestId}
+Campos:
+- ownerId
+- propertyId
+- durationDays
+- priceCentsSnapshot
+- status
+- paymentChargeId
+- startsAt
+- expiresAt
+- createdAt
+
+### propertyEvents/{eventId}
+Campos:
+- propertyId
+- eventType
+- ownerId
+- sessionHash
+- createdAt
+
+Tipos de evento:
+- view
+- whatsapp_click
+- share
+- report
+
+Aplicar limites de frequência e medidas antifraude. Não armazenar dados pessoais desnecessários para contar eventos.
+
+### reports/{reportId}
+Campos:
+- propertyId
+- reporterId, quando autenticado e necessário
+- category
+- description
+- status
+- createdAt
+- reviewedAt
+- reviewedBy
+- resolution
+
+### notifications/{notificationId}
+Campos:
+- recipientId
+- type
+- title
+- message
+- readAt
+- createdAt
+- relatedEntityId
+
+### auditLogs/{logId}
+Campos:
+- actorUid
+- action
+- entityType
+- entityId
+- createdAt
+- metadata
+
+Os registros de auditoria devem ser gerados no backend e não podem ser modificados por usuários comuns.
+
+### platformSettings/{documentId}
+Armazenar somente configurações administrativas validadas, como cidades atendidas, parâmetros comerciais e versões de termos.
+
+### systemJobs/{jobId}
+Utilizar somente se necessário para registrar a execução de tarefas de manutenção e processamento agendado.
+
+Criar índices compostos conforme as consultas implementadas. Documentar todos os índices necessários.
+
+Não armazenar senhas, segredos, dados completos de cartões ou credenciais bancárias.
+
+## 13. REGRAS DE NEGÓCIO
+
+1. Um imóvel só pode pertencer a um proprietário autorizado.
+2. Proprietários não podem alterar imóveis de outros usuários.
+3. Todo anúncio precisa passar pela moderação antes da publicação inicial.
+4. Anúncios rejeitados precisam ter motivo de rejeição.
+5. Imóveis alugados ou indisponíveis não podem ser apresentados como disponíveis.
+6. Um anúncio expirado, suspenso ou não publicado não pode aparecer como disponível na busca pública.
+7. Um anúncio destacado precisa ter pagamento confirmado, período válido e imóvel publicado.
+8. O limite de imóveis deve ser validado no backend para evitar concorrência e fraude.
+9. A situação da assinatura não poderá ser definida diretamente pelo proprietário.
+10. O administrador deverá justificar ações de suspensão e rejeição.
+11. Alterações de preço e disponibilidade deverão atualizar a data de modificação.
+12. A busca pública deverá exibir somente campos autorizados.
+13. Dados financeiros privados só poderão ser consultados pelo proprietário autorizado e pela administração competente.
+14. A exclusão de uma conta deverá seguir uma rotina controlada para evitar perda indevida de registros financeiros e de auditoria.
+15. O sistema deverá impedir duplicação de pagamentos, ativações e renovações.
+16. A publicação não deverá ser garantida quando houver falha de validação, armazenamento ou autorização.
+17. As operações críticas deverão utilizar transações ou controles de concorrência apropriados.
+
+## 14. SEGURANÇA
+
+Implementar:
+- Firebase Security Rules restritivas por padrão.
+- Regras específicas para cada coleção.
+- Verificação de propriedade de cada imóvel.
+- Validação de papéis privilegiados no servidor.
+- Autenticação obrigatória em operações privadas.
+- Proteção contra acesso a documentos de terceiros por alteração de IDs.
+- Validação de todos os campos enviados pelo cliente.
+- Limites de tamanho e tipo de arquivos.
+- Nomes de arquivos gerados de forma segura.
+- Proteção contra XSS e conteúdo malicioso.
+- Limitação de requisições para operações sensíveis.
+- Proteção contra abuso de formulários e denúncias.
+- Auditoria das operações administrativas.
+- Gestão segura de variáveis de ambiente.
+- Princípio do menor privilégio para contas de serviço.
+- Tratamento de erros sem expor dados internos.
+- Rotinas de backup e restauração testadas.
+
+As fotos públicas deverão ser acessíveis conforme a política de publicação. Arquivos privados, comprovantes e documentos deverão exigir autorização adequada.
+
+Não utilizar regras abertas como leitura e escrita irrestritas para qualquer usuário autenticado.
+
+Não permitir escrita direta em documentos de pagamento, assinatura, auditoria ou privilégios administrativos. Operações privilegiadas devem passar por endpoints seguros.
+
+Configurar proteção contra enumeração indevida de contas e abusos de autenticação quando aplicável.
+
+Implementar exclusão ou anonimização de dados pessoais de acordo com a LGPD, respeitando obrigações legais e a necessidade de preservação de determinados registros.
+
+Não registrar tokens, senhas, comprovantes completos ou dados pessoais desnecessários em logs.
+
+## 15. DESEMPENHO E ESCALABILIDADE
+
+Implementar:
+- Paginação de resultados.
+- Carregamento otimizado de imagens.
+- Miniaturas para cartões de imóveis.
+- Compressão de imagens quando apropriada.
+- Consultas indexadas.
+- Carregamento sob demanda.
+- Cache de conteúdo público quando seguro.
+- Tratamento de erros de rede.
+- Prevenção de consultas repetitivas desnecessárias.
+- Limites de resultados por requisição.
+- Monitoramento de consumo do Firebase.
+
+A interface deverá funcionar bem em conexões móveis mais lentas.
+
+Não baixar todas as imagens em resolução original na página de pesquisa.
+
+O PWA deverá possuir manifest, ícones, estratégia de cache segura e orientação de instalação. Não armazenar informações privadas no cache público nem permitir que dados de um usuário sejam exibidos após a troca de conta.
+
+## 16. TESTES OBRIGATÓRIOS
+
+Criar testes automatizados e documentar os resultados.
+
+### Testes unitários
+- Validação de preços.
+- Validação de telefones.
+- Cálculo de limites de anúncios.
+- Expiração de assinatura.
+- Expiração de destaque.
+- Transições de status.
+- Formatação de moeda e datas.
+- Validação de dados de imóveis.
+
+### Testes de segurança
+- Visitante tentando editar imóvel.
+- Proprietário tentando editar imóvel alheio.
+- Usuário tentando se tornar administrador.
+- Proprietário tentando confirmar pagamento.
+- Usuário tentando consultar dados privados.
+- Usuário tentando modificar preços de planos.
+- Acesso indevido a comprovantes e auditorias.
+- Upload de arquivo não permitido.
+- Acesso após suspensão da conta.
+
+### Testes de integração
+- Cadastro e login.
+- Recuperação de senha.
+- Cadastro de imóvel.
+- Upload de fotografias.
+- Submissão para moderação.
+- Aprovação e rejeição.
+- Pesquisa de anúncios.
+- Abertura do WhatsApp.
+- Registro e confirmação de pagamento.
+- Ativação de assinatura.
+- Contratação e expiração de destaque.
+- Cancelamento de assinatura.
+- Registro de denúncia.
+- Exclusão ou anonimização de dados.
+- Execução de backup e restauração.
+
+### Testes de interface
+- Navegação em celular e desktop.
+- Formulários em telas pequenas.
+- Paginação.
+- Estados vazios.
+- Falhas de rede.
+- Acessibilidade básica.
+- Instalação do PWA.
+- Atualização de versão do aplicativo.
+
+Não declare os testes aprovados sem executá-los. Apresente resultados reais, falhas encontradas e pendências.
+
+## 17. IMPLANTAÇÃO
+
+Preparar:
+- Projeto Firebase de desenvolvimento.
+- Projeto Firebase de produção separado.
+- Configuração de Authentication.
+- Criação do Firestore.
+- Configuração do Cloud Storage.
+- Implantação do backend.
+- Publicação do frontend.
+- Configuração de domínio próprio.
+- HTTPS.
+- Variáveis de ambiente.
+- Índices do Firestore.
+- Security Rules.
+- Política de CORS quando necessária.
+- Logs e monitoramento.
+- Alertas de consumo e orçamento.
+- Procedimentos de backup.
+- Procedimento de recuperação.
+- Documentação de manutenção.
+
+Não colocar credenciais de produção em arquivos versionados.
+
+Não presumir que serviços pagos estão habilitados. Verificar os requisitos de faturamento e limites do plano Firebase escolhido antes de ativar recursos de produção.
+
+Criar arquivos de configuração e scripts de implantação quando possível.
+
+## 18. ESTRUTURA DE PASTAS SUGERIDA
+
+Organize o projeto de forma modular, evitando um único arquivo gigante.
+
+src/
+- app/
+- components/
+- layouts/
+- pages/
+- features/
+  - auth/
+  - properties/
+  - search/
+  - owner/
+  - admin/
+  - subscriptions/
+  - payments/
+  - featured/
+  - reports/
+  - notifications/
+- hooks/
+- services/
+- schemas/
+- types/
+- utils/
+- styles/
+
+functions/ ou backend/
+- auth/
+- properties/
+- moderation/
+- subscriptions/
+- payments/
+- featured/
+- analytics/
+- notifications/
+- admin/
+- audit/
+- shared/
+
+firebase/
+- firestore.rules
+- firestore.indexes.json
+- storage.rules
+
+tests/
+- unit/
+- integration/
+- security/
+- e2e/
+
+docs/
+- architecture.md
+- setup.md
+- deployment.md
+- security.md
+- data-model.md
+- operations.md
+- commercial-launch.md
+
+Adapte a estrutura à ferramenta, mantendo a separação de responsabilidades e a tipagem.
+
+## 19. ESTRATÉGIA DE LANÇAMENTO COMERCIAL
+
+A primeira fase será regional.
+
+Fase 1 — Preparação:
+- Definir identidade visual e domínio.
+- Configurar o portal.
+- Preparar termos de uso e política de privacidade.
+- Definir preços iniciais.
+- Recrutar proprietários para testar o sistema.
+
+Fase 2 — Oferta inicial:
+- Convidar proprietários locais.
+- Oferecer publicação gratuita inicial em condições claramente definidas.
+- Ajudar os primeiros anunciantes a cadastrar imóveis.
+- Conferir a qualidade das fotos e informações.
+- Criar uma base inicial de imóveis reais e disponíveis.
+
+Fase 3 — Divulgação:
+- Criar perfis comerciais nas redes sociais.
+- Publicar vídeos de imóveis com autorização.
+- Divulgar anúncios em grupos locais respeitando as regras de cada grupo.
+- Distribuir materiais com QR Code direcionando ao portal.
+- Fazer parcerias com proprietários e imobiliárias.
+- Facilitar o compartilhamento de anúncios pelo WhatsApp.
+
+Fase 4 — Monetização:
+- Medir visitas e contatos.
+- Identificar os recursos mais utilizados.
+- Testar os planos pagos.
+- Oferecer destaques para imóveis elegíveis.
+- Acompanhar renovações e cancelamentos.
+- Ajustar os preços com base em resultados reais.
+
+Fase 5 — Expansão:
+- Ampliar gradualmente para cidades próximas.
+- Criar páginas específicas por município.
+- Reforçar a moderação e o suporte.
+- Expandir somente quando houver oferta suficiente de imóveis e demanda real.
+
+## 20. INDICADORES DO NEGÓCIO
+
+Criar relatórios para acompanhar:
+- Proprietários cadastrados.
+- Proprietários ativos.
+- Imóveis aprovados.
+- Imóveis disponíveis.
+- Novos anúncios por município.
+- Visitas por anúncio.
+- Cliques no WhatsApp.
+- Percentual de anúncios com contato.
+- Assinaturas ativas.
+- Receita registrada.
+- Renovações.
+- Cancelamentos.
+- Conversão de plano gratuito para pago.
+- Custo de aquisição de clientes, quando houver dados disponíveis.
+- Custo de infraestrutura.
+
+Diferenciar receita registrada de receita efetivamente recebida. Não apresentar visualizações como se fossem locações concretizadas.
+
+## 21. CRITÉRIOS DE ACEITAÇÃO
+
+O projeto somente deverá ser considerado pronto para lançamento quando:
+
+1. O usuário conseguir criar uma conta e entrar no sistema.
+2. O proprietário conseguir cadastrar um imóvel com fotos.
+3. O imóvel passar por aprovação administrativa.
+4. O anúncio aprovado aparecer na pesquisa pública.
+5. O visitante conseguir filtrar imóveis e abrir os detalhes.
+6. O botão de WhatsApp funcionar com o número autorizado.
+7. Proprietários não conseguirem acessar ou editar imóveis de terceiros.
+8. O administrador conseguir gerenciar usuários e anúncios.
+9. Os pagamentos manuais puderem ser registrados e confirmados com segurança.
+10. Os benefícios pagos forem ativados conforme as regras comerciais.
+11. Os destaques expirarem corretamente.
+12. O sistema registrar operações administrativas relevantes.
+13. As regras de segurança e testes críticos forem aprovados.
+14. A aplicação funcionar em celulares e computadores.
+15. O backup e a restauração tiverem sido testados.
+16. A documentação de implantação estiver completa.
+
+## 22. MÉTODO DE EXECUÇÃO
+
+Trabalhe em etapas, mantendo o projeto funcional ao final de cada etapa.
+
+Etapa 1 — Analisar os requisitos e definir a arquitetura.
+Etapa 2 — Criar a estrutura do projeto, design system e navegação.
+Etapa 3 — Implementar autenticação e permissões.
+Etapa 4 — Implementar imóveis, imagens, pesquisa e páginas públicas.
+Etapa 5 — Implementar a área do proprietário.
+Etapa 6 — Implementar administração e moderação.
+Etapa 7 — Implementar planos, pagamentos manuais, assinaturas e destaques.
+Etapa 8 — Implementar notificações, métricas e relatórios.
+Etapa 9 — Implementar regras de segurança, auditoria e backup.
+Etapa 10 — Executar testes, corrigir erros e preparar a implantação.
+
+Antes de cada etapa, identifique dependências. Depois de cada etapa, execute os testes relevantes e informe o que foi concluído, o que foi testado e o que ainda depende de configuração externa.
+
+Não apague funcionalidades existentes para substituir por telas de demonstração. Não use dados simulados em produção. Não declare que uma integração está funcionando sem testá-la.
+
+Se o contexto ou limite da ferramenta impedir a implementação completa de uma só vez, preserve o código e a arquitetura existentes e continue por módulos. Não reduza o escopo silenciosamente.
+
+## ENTREGA FINAL
+
+Entregue:
+- Código-fonte organizado.
+- Aplicação web funcional.
+- PWA instalável.
+- Integração Firebase configurável.
+- Banco de dados e índices.
+- Regras de segurança.
+- Backend com operações privilegiadas.
+- Testes automatizados.
+- Arquivos de configuração.
+- Instruções para executar localmente.
+- Instruções para configurar Firebase.
+- Instruções para publicar em produção.
+- Documentação técnica.
+- Lista de serviços externos e custos a verificar.
+- Relatório de testes executados.
+- Lista transparente de limitações e pendências.
+
+Comece pela análise arquitetural e pela estrutura do projeto. Em seguida, implemente o sistema real por etapas, priorizando segurança, persistência dos dados e funcionalidades essenciais.

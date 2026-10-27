@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#17324D"/>
+      <stop offset="100%" stop-color="#0F2133"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#3B82F6"/>
+      <stop offset="100%" stop-color="#2563EB"/>
+    </linearGradient>
+    <linearGradient id="roof" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#60A5FA"/>
+      <stop offset="100%" stop-color="#3B82F6"/>
+    </linearGradient>
+  </defs>
+  <!-- Background with rounded squircle -->
+  <rect width="512" height="512" rx="110" fill="url(#bg)"/>
+  
+  <!-- Subtle circular grid glow -->
+  <circle cx="256" cy="240" r="180" fill="#2563EB" opacity="0.12"/>
+  
+  <!-- Modern House / Key Geometry -->
+  <!-- Roof Outline -->
+  <path d="M120 250 L256 130 L392 250 L356 250 L256 162 L156 250 Z" fill="url(#roof)"/>
+  
+  <!-- Chimney / Modern Block -->
+  <rect x="330" y="160" width="30" height="46" rx="4" fill="#3B82F6" opacity="0.8"/>
+  
+  <!-- Main Building Body -->
+  <path d="M156 244 L156 364 C156 372 164 380 174 380 L338 380 C348 380 356 372 356 364 L356 244 L256 156 Z" fill="#FFFFFF"/>
+  
+  <!-- Front Door with Keyhole accent -->
+  <path d="M226 380 L226 280 C226 270 234 262 244 262 L268 262 C278 262 286 270 286 280 L286 380 Z" fill="url(#accent)"/>
+  
+  <!-- Modern Window Left -->
+  <rect x="180" y="270" width="32" height="32" rx="6" fill="#E2E8F0"/>
+  <!-- Modern Window Right -->
+  <rect x="300" y="270" width="32" height="32" rx="6" fill="#E2E8F0"/>
+  
+  <!-- Door knob / Key accent -->
+  <circle cx="240" cy="325" r="5" fill="#FFFFFF"/>
+
+  <!-- Checkmark / Green Verified Badge in bottom corner -->
+  <circle cx="370" cy="370" r="44" fill="#16803D" stroke="#FFFFFF" stroke-width="6"/>
+  <path d="M352 370 L365 383 L390 356" fill="none" stroke="#FFFFFF" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

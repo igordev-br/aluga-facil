@@ -1,0 +1,6 @@
+{
+  "name": "AlugaFácil Pro",
+  "description": "Portal completo de anúncios de imóveis para aluguel em Presidente Dutra e Maranhão, com painel do proprietário, moderação, planos comerciais e contato direto via WhatsApp.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

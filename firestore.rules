@@ -1,0 +1,188 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Default-deny catch-all (Pillar 1)
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Hardened Global Helpers
+    function isValidId(id) {
+      return id is string && id.size() > 0 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(uid) {
+      return isSignedIn() && request.auth.uid == uid;
+    }
+
+    function isAdmin() {
+      return isSignedIn() && (
+        exists(/databases/$(database)/documents/admins/$(request.auth.uid)) ||
+        (request.auth.token.email == 'igorwebdesign86@gmail.com' && request.auth.token.email_verified == true)
+      );
+    }
+
+    // Admins collection
+    match /admins/{userId} {
+      allow read: if isSignedIn() && isValidId(userId);
+      allow write: if isAdmin() && isValidId(userId);
+    }
+
+    // User profiles
+    match /users/{userId} {
+      allow get: if isValidId(userId) && (isOwner(userId) || isAdmin());
+      allow list: if isAdmin();
+      allow create: if isValidId(userId) && isOwner(userId) &&
+        incoming().email is string &&
+        incoming().email.size() <= 150 &&
+        incoming().accountType in ['proprietario', 'imobiliaria'] &&
+        incoming().accountStatus == 'active';
+      allow update: if isValidId(userId) && (
+        isAdmin() ||
+        (isOwner(userId) &&
+          !incoming().diff(existing()).affectedKeys().hasAny(['accountType', 'accountStatus', 'suspensionReason']))
+      );
+      allow delete: if isValidId(userId) && (isOwner(userId) || isAdmin());
+    }
+
+    // Properties
+    match /properties/{propertyId} {
+      function isValidProperty(data) {
+        return data.title is string && data.title.size() >= 5 && data.title.size() <= 150 &&
+               data.propertyType in ['casa', 'apartamento', 'kitnet', 'comercial', 'sala', 'galpao', 'terreno', 'chacara'] &&
+               data.city is string && data.city.size() <= 80 &&
+               data.state is string && data.state.size() == 2 &&
+               data.rentAmountCents is number && data.rentAmountCents > 0 && data.rentAmountCents <= 50000000;
+      }
+
+      allow get: if isValidId(propertyId) && (
+        (resource.data.status in ['published', 'rented'] && resource.data.moderationStatus == 'approved') ||
+        isOwner(resource.data.ownerId) ||
+        isAdmin()
+      );
+
+      allow list: if (
+        (resource.data.status in ['published', 'rented'] && resource.data.moderationStatus == 'approved') ||
+        isOwner(resource.data.ownerId) ||
+        isAdmin()
+      );
+
+      allow create: if isValidId(propertyId) && isSignedIn() &&
+        incoming().ownerId == request.auth.uid &&
+        incoming().status in ['draft', 'pending'] &&
+        incoming().moderationStatus in ['pending', 'correction_requested'] &&
+        isValidProperty(incoming());
+
+      allow update: if isValidId(propertyId) && (
+        isAdmin() ||
+        (
+          isOwner(existing().ownerId) &&
+          incoming().ownerId == existing().ownerId &&
+          isValidProperty(incoming()) &&
+          !incoming().diff(existing()).affectedKeys().hasAny(['featuredUntil']) &&
+          (
+            // When updating an approved ad with major changes, status returns to pending or stays approved for basic availability toggle
+            incoming().moderationStatus in ['pending', 'approved', 'correction_requested']
+          )
+        )
+      );
+
+      allow delete: if isValidId(propertyId) && (isOwner(existing().ownerId) || isAdmin());
+    }
+
+    // Plans
+    match /plans/{planId} {
+      allow read: if true;
+      allow write: if isAdmin() && isValidId(planId);
+    }
+
+    // Subscriptions
+    match /subscriptions/{subscriptionId} {
+      allow get: if isValidId(subscriptionId) && (isOwner(resource.data.ownerId) || isAdmin());
+      allow list: if isAdmin() || (isSignedIn() && resource.data.ownerId == request.auth.uid);
+      allow write: if isAdmin() && isValidId(subscriptionId);
+    }
+
+    // Charges (Manual payments)
+    match /charges/{chargeId} {
+      allow get: if isValidId(chargeId) && (isOwner(resource.data.ownerId) || isAdmin());
+      allow list: if isAdmin() || (isSignedIn() && resource.data.ownerId == request.auth.uid);
+      allow create: if isValidId(chargeId) && isSignedIn() &&
+        incoming().ownerId == request.auth.uid &&
+        incoming().status == 'pending' &&
+        incoming().amountCents is number &&
+        incoming().amountCents > 0;
+      allow update: if isValidId(chargeId) && (
+        isAdmin() ||
+        (
+          isOwner(existing().ownerId) &&
+          existing().status == 'pending' &&
+          incoming().diff(existing()).affectedKeys().hasOnly(['receiptUrl', 'updatedAt', 'notes', 'externalReference'])
+        )
+      );
+      allow delete: if isAdmin() && isValidId(chargeId);
+    }
+
+    // Featured requests
+    match /featuredRequests/{requestId} {
+      allow get: if isValidId(requestId) && (isOwner(resource.data.ownerId) || isAdmin());
+      allow list: if isAdmin() || (isSignedIn() && resource.data.ownerId == request.auth.uid);
+      allow create: if isValidId(requestId) && isSignedIn() &&
+        incoming().ownerId == request.auth.uid &&
+        incoming().status == 'pending_payment';
+      allow update, delete: if isAdmin() && isValidId(requestId);
+    }
+
+    // Property Events (analytics: view, whatsapp_click, share, report)
+    match /propertyEvents/{eventId} {
+      allow get, list: if isAdmin() || (isSignedIn() && resource.data.ownerId == request.auth.uid);
+      allow create: if isValidId(eventId) &&
+        incoming().eventType in ['view', 'whatsapp_click', 'share', 'report'] &&
+        isValidId(incoming().propertyId);
+      allow update, delete: if isAdmin();
+    }
+
+    // Reports / Denúncias
+    match /reports/{reportId} {
+      allow create: if isValidId(reportId) &&
+        incoming().category in ['fake', 'already_rented', 'wrong_price', 'inappropriate', 'offensive', 'other'] &&
+        incoming().description is string &&
+        incoming().description.size() <= 2000 &&
+        incoming().status == 'pending';
+      allow read, update, delete: if isAdmin() && isValidId(reportId);
+    }
+
+    // Notifications
+    match /notifications/{notificationId} {
+      allow get, list: if isValidId(notificationId) && (isOwner(resource.data.recipientId) || isAdmin());
+      allow create: if isSignedIn() && isValidId(notificationId);
+      allow update: if isValidId(notificationId) && isOwner(existing().recipientId) &&
+        incoming().diff(existing()).affectedKeys().hasOnly(['read', 'readAt']);
+      allow delete: if isValidId(notificationId) && (isOwner(existing().recipientId) || isAdmin());
+    }
+
+    // Audit Logs
+    match /auditLogs/{logId} {
+      allow read, write: if isAdmin() && isValidId(logId);
+    }
+
+    // Platform Settings (Cities, categories, support contacts, terms)
+    match /platformSettings/{settingId} {
+      allow read: if true;
+      allow write: if isAdmin() && isValidId(settingId);
+    }
+  }
+}
